@@ -100,7 +100,8 @@
               "type": "object"
             },
             "type": "object",
-            "title": "Databases"
+            "title": "Databases",
+            "description": "Mapping of region -> database code -> description. Each database entry is a human-friendly description derived from the `PatDB` enum."
           }
         },
         "type": "object",
