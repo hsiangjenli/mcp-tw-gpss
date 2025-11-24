@@ -23,6 +23,7 @@ from mcp_tools.schemas import (
     PatDB,
     PatAG,
     PatTY,
+    PATDB_INFO,
     OutputFieldCode,
     OutputFormat,
 )
@@ -208,7 +209,13 @@ class SearchExamplesResponse(BaseModel):
 
 class DatabasesResponse(BaseModel):
     success: bool
-    databases: dict[str, dict[str, str]]
+    databases: dict[str, dict[str, str]] = Field(
+        ...,
+        description=(
+            "Mapping of region -> database code -> description. "
+            "Each database entry is a human-friendly description derived from the `PatDB` enum."
+        ),
+    )
 
 
 SearchPatentsRequest.model_rebuild()
@@ -492,46 +499,30 @@ async def get_available_databases() -> dict[str, Any]:
     Returns:
         Dictionary with available databases and their descriptions
     """
-    databases = {
-        "TW": {
-            "TWA": "Taiwan Patent - Published/Disclosed",
-            "TWB": "Taiwan Patent - Granted",
-            "TWD": "Taiwan Design",
-        },
-        "US": {
-            "USA": "United States Patent - Published/Disclosed",
-            "USB": "United States Patent - Granted",
-            "USD": "United States Design",
-        },
-        "JP": {
-            "JPA": "Japan Patent - Published/Disclosed",
-            "JPB": "Japan Patent - Granted",
-            "JPD": "Japan Design",
-        },
-        "EP": {
-            "EPA": "European Patent - Published/Disclosed",
-            "EPB": "European Patent - Granted",
-            "EUIPO": "EU Design",
-        },
-        "KR": {
-            "KPA": "Korea Patent - Published/Disclosed",
-            "KPB": "Korea Patent - Granted",
-            "KPD": "Korea Design",
-        },
-        "CN": {
-            "CNA": "China Patent - Published/Disclosed",
-            "CNB": "China Patent - Granted",
-            "CND": "China Design",
-        },
-        "International": {
-            "WO": "WIPO Published",
-            "SEAA": "Southeast Asia - Published (No Full Text)",
-            "SEAB": "Southeast Asia - Granted (No Full Text)",
-            "OTA": "Other Countries - Published (No Full Text)",
-            "OTB": "Other Countries - Granted (No Full Text)",
-        },
-    }
-    return {"success": True, "databases": databases}
+    regions: dict[str, dict[str, str]] = {}
+
+    for code, desc in PATDB_INFO.items():
+        # Simple heuristic to group codes by region
+        if code.startswith("TW"):
+            region = "TW"
+        elif code.startswith("US"):
+            region = "US"
+        elif code.startswith("JP"):
+            region = "JP"
+        elif code.startswith(("EP", "EU")):
+            region = "EP"
+        elif code.startswith("KP") or code.startswith("K"):
+            region = "KR"
+        elif code.startswith("CN"):
+            region = "CN"
+        elif code in ("WO", "SEAA", "SEAB", "OTA", "OTB"):
+            region = "International"
+        else:
+            region = "International"
+
+        regions.setdefault(region, {})[code] = desc or ""
+
+    return {"success": True, "databases": regions}
 
 
 async def get_search_examples() -> dict[str, Any]:

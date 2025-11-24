@@ -12,31 +12,71 @@ from pydantic import AliasChoices, BaseModel, Field
 
 
 class PatDB(str, Enum):
-    """Patent databases."""
+    """Patent databases with inline descriptions stored on each member.
 
-    TWA = "TWA"  # 台灣公開
-    TWB = "TWB"  # 台灣公告
-    TWD = "TWD"  # 台灣設計
-    USA = "USA"  # 美國公開
-    USB = "USB"  # 美國公告
-    USD = "USD"  # 美國設計
-    JPA = "JPA"  # 日本公開
-    JPB = "JPB"  # 日本公告
-    JPD = "JPD"  # 日本意匠
-    EPA = "EPA"  # 歐洲公開
-    EPB = "EPB"  # 歐洲公告
-    EUIPO = "EUIPO"  # 歐盟外觀設計
-    KPA = "KPA"  # 韓國公開
-    KPB = "KPB"  # 韓國公告
-    KPD = "KPD"  # 韓國設計
-    CNA = "CNA"  # 中國公開
-    CNB = "CNB"  # 中國公告
-    CND = "CND"  # 中國設計
-    WO = "WO"  # WIPO 公開
-    SEAA = "SEAA"  # 東南亞公開(無全文)
-    SEAB = "SEAB"  # 東南亞公告(無全文)
-    OTA = "OTA"  # 其他國家公開(無全文)
-    OTB = "OTB"  # 其他國家公告(無全文)
+    Members carry a `(code, description)` tuple so descriptions are
+    available at runtime without parsing source comments.
+    """
+
+    def __new__(cls, value: str, description: str):
+        obj = str.__new__(cls, value)
+        obj._value_ = value
+        setattr(obj, "description", description)
+        return obj
+
+    TWA = (
+        "TWA",
+        "台灣公開（公開之發明專利申請案，只是技術內容公開，並非已取得專利權），2003 ~",
+    )
+    TWB = ("TWB", "台灣公告（公告之專利表示已取得專利權），1950 ~")
+    TWD = ("TWD", "台灣設計，1964 ~")
+    USA = (
+        "USA",
+        "美國公開（公開之發明專利申請案，只是技術內容公開，並非已取得專利權）， 2001 ~",
+    )
+    USB = ("USB", "美國公告（公告之專利表示已取得專利權）， 1790 ~")
+    USD = ("USD", "美國設計，1976 ~")
+    JPA = (
+        "JPA",
+        "日本公開（公開之發明專利申請案，只是技術內容公開，並非已取得專利權），1971 ~",
+    )
+    JPB = ("JPB", "日本公告（公告之專利表示已取得專利權），1913 ~")
+    JPD = ("JPD", "日本意匠，2000 ~")
+    EPA = (
+        "EPA",
+        "歐洲公開（公開之發明專利申請案，只是技術內容公開，並非已取得專利權），1978 ~",
+    )
+    EPB = ("EPB", "歐洲公告（公告之專利表示已取得專利權），1980 ~")
+    EUIPO = ("EUIPO", "歐洲設計，2003 ~")
+    KPA = (
+        "KPA",
+        "韓國公開（公開之發明專利申請案，只是技術內容公開，並非已取得專利權），1999 ~",
+    )
+    KPB = ("KPB", "韓國公告（公告之專利表示已取得專利權），1974 ~")
+    KPD = ("KPD", "韓國設計，1998 ~")
+    CNA = (
+        "CNA",
+        "中國公開（公開之發明專利申請案，只是技術內容公開，並非已取得專利權），1985 ~",
+    )
+    CNB = ("CNB", "中國公告（公告之專利表示已取得專利權），1985 ~")
+    CND = ("CND", "中國設計，1985 ~")
+    WO = ("WO", "WIPO 公開，1978 ~")
+    SEAA = ("SEAA", "東南亞公開(無全文)，1953 ~")
+    SEAB = ("SEAB", "東南亞公告(無全文)，1975 ~")
+    OTA = ("OTA", "其他國家公開(無全文)，1782 ~")
+    OTB = ("OTB", "其他國家公告(無全文)，1827 ~")
+
+
+# Human-friendly descriptions and usage guidance for each PatDB code.
+# The `description` values are the inline comments extracted from the
+# `PatDB` enum so the rest of the application (and MCP tools) can return
+# these annotations at runtime. The `usage` field offers a short note
+# explaining when to query that database.
+PATDB_INFO: dict[str, str] = {}
+
+for member in PatDB:
+    desc = getattr(member, "description", member.value)
+    PATDB_INFO[member.value] = desc
 
 
 class PatAG(str, Enum):

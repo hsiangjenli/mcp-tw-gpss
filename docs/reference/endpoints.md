@@ -87,7 +87,7 @@ Schema:
 ```json
 {
   "success": boolean (required)  // 
-  "databases": object (required),  // 
+  "databases": object (required),  // Mapping of region -> database code -> description. Each database entry is a human-friendly description derived from the `PatDB` enum.
 }
 ```
 
