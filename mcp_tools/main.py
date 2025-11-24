@@ -167,10 +167,15 @@ class SearchPatentsRequest(BaseModel):
 
 
 class SearchPatentsData(BaseModel):
-    """Container for the GPSS raw payload and optional parsed response."""
+    """Container for the GPSS raw payload and optional parsed response.
+
+    Note: `parsed` is typed as `GPSSAPIResponse | None` so OpenAPI can fully
+    document the nested `PatentRecord` fields and their descriptions. When the
+    MCP receives JSON from GPSS we attempt to validate into `GPSSAPIResponse`.
+    """
 
     raw: Any = Field(description="Raw GPSS response (JSON dict or XML text)")
-    parsed: GPSSAPIResponse | dict[str, Any] | None = Field(
+    parsed: GPSSAPIResponse | None = Field(
         default=None,
         description="Parsed GPSS payload when JSON mode succeeds",
     )
@@ -581,7 +586,7 @@ async def tool_search_patents(payload: SearchPatentsRequest) -> SearchPatentsRes
     1. Automatically read USER_CODE from the environment
 
     2. Send the request to GPSS API
-    
+
     3. Return parsed results with patent numbers, titles, abstracts, and inventor info
     """
 

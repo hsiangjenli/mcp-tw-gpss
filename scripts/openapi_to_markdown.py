@@ -7,10 +7,18 @@ def format_schema(schema, components):
     if not schema:
         return "N/A"
 
+    # Resolve $ref inline so endpoints doc contains the full schema and we
+    # avoid generating a separate (duplicate) models page. This prevents
+    # enums/components duplication between the enum docs and the swagger
+    # generated models.
     if "$ref" in schema:
-        # Handle reference to components
         ref_path = schema["$ref"].split("/")[-1]
-        return f"[{ref_path}](models.md#{ref_path.lower()})"
+        resolved = components.get("schemas", {}).get(ref_path)
+        if resolved:
+            # Prevent deep recursion by passing an empty placeholder for
+            # components when formatting the resolved schema.
+            return format_schema(resolved, components)
+        return f"{ref_path}"
 
     schema_type = schema.get("type", "unknown")
 
@@ -19,16 +27,22 @@ def format_schema(schema, components):
         required = schema.get("required", [])
 
         result = []
+        # Render an example-like JSON structure with inline comments for
+        # readability in the generated markdown.
         result.append("```json")
         result.append("{")
+        first = True
         for prop_name, prop_schema in properties.items():
             is_required = prop_name in required
             prop_type = get_type_description(prop_schema, components)
             description = prop_schema.get("description", "")
             required_marker = " (required)" if is_required else ""
+            comma = "," if not first else ""
+            # include property line with a trailing comma for visual JSON-like block
             result.append(
-                f'  "{prop_name}": {prop_type}{required_marker}  // {description}'
+                f'  "{prop_name}": {prop_type}{required_marker}{comma}  // {description}'
             )
+            first = False
         result.append("}")
         result.append("```")
         return "\n".join(result)
@@ -106,6 +120,7 @@ def generate_endpoints_markdown(openapi_data):
                     md.append("")
                     if "schema" in schema_info:
                         md.append("Schema:")
+                        # Inline referenced schemas so endpoints page is self-contained
                         md.append(format_schema(schema_info["schema"], components))
                         md.append("")
 

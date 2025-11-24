@@ -241,41 +241,77 @@ class PatentRecord(BaseModel):
 
     model_config = {"populate_by_name": True, "extra": "ignore"}
 
-    patent_number: Optional[str] = Field(None, alias="PN")
-    publication_date: Optional[str] = Field(None, alias="ID")
-    application_number: Optional[str] = Field(None, alias="AN")
-    application_date: Optional[str] = Field(None, alias="AD")
+    patent_number: Optional[str] = Field(
+        None, alias="PN", description="Publication/announcement number (公開/公告號)"
+    )
+    publication_date: Optional[str] = Field(
+        None, alias="ID", description="Publication/announcement date (公開/公告日)"
+    )
+    application_number: Optional[str] = Field(
+        None, alias="AN", description="Application number (申請號)"
+    )
+    application_date: Optional[str] = Field(
+        None, alias="AD", description="Application date (申請日)"
+    )
     applicant_name: Optional[str] = Field(
         None,
         alias="PA",
         validation_alias=AliasChoices("PA", "AX"),
+        description="Applicant name (申請人名)",
     )
-    first_applicant: Optional[str] = Field(None, alias="AF")
-    applicant_country: Optional[str] = Field(None, alias="AY")
-    first_applicant_country: Optional[str] = Field(None, alias="AZ")
+    first_applicant: Optional[str] = Field(
+        None, alias="AF", description="First applicant name (第一申請人名)"
+    )
+    applicant_country: Optional[str] = Field(
+        None, alias="AY", description="Applicant country (申請人國別)"
+    )
+    first_applicant_country: Optional[str] = Field(
+        None, alias="AZ", description="First applicant country (第一申請人國別)"
+    )
     inventor_name: Optional[str] = Field(
         None,
         alias="IN",
         validation_alias=AliasChoices("IN", "IV"),
+        description="Inventor name (發明人名)",
     )
-    inventor_country: Optional[str] = Field(None, alias="IY")
-    agent_name: Optional[str] = Field(None, alias="LX")
-    examiner: Optional[str] = Field(None, alias="EX")
-    priority: Optional[str] = Field(None, alias="PR")
-    priority_date: Optional[str] = Field(None, alias="DR")
-    ipc: Optional[str] = Field(None, alias="IC")
-    first_ipc: Optional[str] = Field(None, alias="FC")
-    cpc: Optional[str] = Field(None, alias="CS")
-    first_cpc: Optional[str] = Field(None, alias="TS")
-    loc: Optional[str] = Field(None, alias="IQ")
-    fi: Optional[str] = Field(None, alias="FI")
-    f_term: Optional[str] = Field(None, alias="FT")
-    d_term: Optional[str] = Field(None, alias="IR")
-    uspc: Optional[str] = Field(None, alias="UC")
-    title: Optional[str] = Field(None, alias="TI")
-    abstract: Optional[str] = Field(None, alias="AB")
-    claims: Optional[str] = Field(None, alias="CL")
-    cited_patents: Optional[str] = Field(None, alias="CI")
+    inventor_country: Optional[str] = Field(
+        None, alias="IY", description="Inventor country (發明人國別)"
+    )
+    agent_name: Optional[str] = Field(
+        None, alias="LX", description="Agent / attorney name (代理人名)"
+    )
+    examiner: Optional[str] = Field(None, alias="EX", description="Examiner (審查委員)")
+    priority: Optional[str] = Field(
+        None, alias="PR", description="Priority claim (優先權)"
+    )
+    priority_date: Optional[str] = Field(
+        None, alias="DR", description="Priority date (優先權日)"
+    )
+    ipc: Optional[str] = Field(None, alias="IC", description="IPC classification (IPC)")
+    first_ipc: Optional[str] = Field(
+        None, alias="FC", description="First IPC (第一 IPC)"
+    )
+    cpc: Optional[str] = Field(None, alias="CS", description="CPC classification (CPC)")
+    first_cpc: Optional[str] = Field(
+        None, alias="TS", description="First CPC (第一 CPC)"
+    )
+    loc: Optional[str] = Field(None, alias="IQ", description="LOC classification (LOC)")
+    fi: Optional[str] = Field(None, alias="FI", description="FI classification (FI)")
+    f_term: Optional[str] = Field(None, alias="FT", description="F-TERM (F-TERM)")
+    d_term: Optional[str] = Field(None, alias="IR", description="D-TERM (D-TERM)")
+    uspc: Optional[str] = Field(
+        None, alias="UC", description="USPC classification (USPC)"
+    )
+    title: Optional[str] = Field(
+        None, alias="TI", description="Patent title (專利名稱)"
+    )
+    abstract: Optional[str] = Field(None, alias="AB", description="Abstract (摘要)")
+    claims: Optional[str] = Field(
+        None, alias="CL", description="Claims / patent scope (專利範圍)"
+    )
+    cited_patents: Optional[str] = Field(
+        None, alias="CI", description="Cited patents / references (引用專利)"
+    )
 
 
 class GPSSAPIResponse(BaseModel):
