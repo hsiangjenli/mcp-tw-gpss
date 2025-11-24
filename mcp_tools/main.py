@@ -28,6 +28,71 @@ from mcp_tools.schemas import (
 )
 
 
+SearchFieldOption = Literal[
+    "title",
+    "abstract",
+    "claims",
+    "title_abstract",
+    "title_abstract_claims",
+    "patent_number",
+    "publication_date",
+    "application_number",
+    "application_date",
+    "applicant_name",
+    "first_applicant_name",
+    "applicant_country",
+    "first_applicant_country",
+    "inventor_name",
+    "inventor_country",
+    "agent_name",
+    "examiner",
+    "priority",
+    "priority_date",
+    "ipc",
+    "first_ipc",
+    "cpc",
+    "first_cpc",
+    "loc",
+    "fi",
+    "f_term",
+    "d_term",
+    "uspc",
+    "cited_patents",
+]
+
+FIELD_ALIAS_MAP: dict[SearchFieldOption, str] = {
+    "title": "TI",
+    "abstract": "AB",
+    "claims": "CL",
+    "title_abstract": "TI/AB",
+    "title_abstract_claims": "TI/AB/CL",
+    "patent_number": "PN",
+    "publication_date": "ID",
+    "application_number": "AN",
+    "application_date": "AD",
+    "applicant_name": "AX",
+    "first_applicant_name": "AF",
+    "applicant_country": "AY",
+    "first_applicant_country": "AZ",
+    "inventor_name": "IV",
+    "inventor_country": "IY",
+    "agent_name": "LX",
+    "examiner": "EX",
+    "priority": "PR",
+    "priority_date": "DR",
+    "ipc": "IC",
+    "first_ipc": "FC",
+    "cpc": "CS",
+    "first_cpc": "TS",
+    "loc": "IQ",
+    "fi": "FI",
+    "f_term": "FT",
+    "d_term": "IR",
+    "uspc": "UC",
+    "cited_patents": "CI",
+}
+
+
 class SearchPatentsRequest(BaseModel):
     """Body payload for the `search_patents` MCP tool.
 
@@ -50,7 +115,13 @@ class SearchPatentsRequest(BaseModel):
                     "search_field": "title_abstract_claims",
                     "publication_date_from": "20220101",
                     "max_results": 50,
-                }
+                },
+                {
+                    "keywords": "lithium battery AND fast charging",
+                    "search_field": ["title", "abstract", "claims"],
+                    "databases": ["TWA", "USA"],
+                    "max_results": 40,
+                },
             ],
         },
     }
@@ -58,8 +129,17 @@ class SearchPatentsRequest(BaseModel):
     keywords: str = Field(
         ..., description="Keyword expression understood by GPSS (e.g., '雲端 AND 轉型')"
     )
-    search_field: Literal["title", "abstract", "claims", "title_abstract_claims"] = (
-        Field("title", description="Which GPSS field group to search")
+    search_field: SearchFieldOption | list[SearchFieldOption] = Field(
+        "title",
+        description=(
+            "Which GPSS field group(s) to search. Provide a single value or a list "
+            "to reuse the same keywords across multiple fields (additional fields "
+            "are combined with OR per GPSS API rules). Supported values include: "
+            "title, abstract, claims, title_abstract, title_abstract_claims, patent_number, "
+            "publication_date, application_number, application_date, applicant_name, first_applicant_name, "
+            "applicant_country, first_applicant_country, inventor_name, inventor_country, agent_name, examiner, "
+            "priority, priority_date, ipc, first_ipc, cpc, first_cpc, loc, fi, f_term, d_term, uspc, and cited_patents."
+        ),
     )
     databases: list[str] | None = Field(
         default=None,
@@ -113,7 +193,7 @@ class SearchExample(BaseModel):
 
     description: str
     keywords: str
-    search_field: str
+    search_field: SearchFieldOption | list[SearchFieldOption]
     databases: list[str] | None = None
     publication_date_from: str | None = None
     publication_date_to: str | None = None
@@ -195,7 +275,7 @@ GPSS_API_URL = "https://tiponet.tipo.gov.tw/gpss1/gpsskmc/gpss_api"
 
 async def search_patents(
     keywords: str,
-    search_field: str = "title",
+    search_field: SearchFieldOption | list[SearchFieldOption] = "title",
     databases: list[str] | None = None,
     application_types: list[str] | None = None,
     patent_types: list[str] | None = None,
@@ -211,7 +291,8 @@ async def search_patents(
 
     Args:
         keywords: Search keywords (e.g., '雲端 AND 轉型', supports AND/OR/NOT operators)
-        search_field: Which field to search in (title, abstract, claims, title_abstract_claims)
+        search_field: Field(s) to search (see `FIELD_ALIAS_MAP` for available values).
+            Provide a single value or a list; additional fields are OR'ed per GPSS rules.
         databases: List of patent databases to search (default: all available)
         application_types: List of application type codes (A for published, B for granted)
         patent_types: List of patent type codes (I=invention, M=utility model, D=design)
@@ -232,23 +313,36 @@ async def search_patents(
                 "Please ensure USER_CODE is configured in your environment before using this tool. "
                 "When using Docker, pass: -e USER_CODE=your_api_code",
             }
-        # Build search condition based on field
-        search_data = {}
+        # Build search condition based on field(s)
+        raw_fields = (
+            [search_field] if isinstance(search_field, str) else list(search_field)
+        )
 
-        if search_field == "title":
-            search_data["TI"] = keywords
-        elif search_field == "abstract":
-            search_data["AB"] = keywords
-        elif search_field == "claims":
-            search_data["CL"] = keywords
-        elif search_field == "title_abstract_claims":
-            search_data["TI/AB/CL"] = keywords
-        else:
+        if not raw_fields:
             return {
                 "success": False,
-                "error": f"Invalid search_field: {search_field}. "
-                "Use: title, abstract, claims, or title_abstract_claims",
+                "error": "search_field must contain at least one value.",
             }
+
+        normalized_fields: list[SearchFieldOption] = []
+        for field in raw_fields:
+            if field not in FIELD_ALIAS_MAP:
+                allowed = ", ".join(sorted(FIELD_ALIAS_MAP.keys()))
+                return {
+                    "success": False,
+                    "error": f"Invalid search_field: {field}. Use: {allowed}",
+                }
+            normalized_fields.append(field)
+
+        # Preserve order but avoid duplicate aliases
+        ordered_fields: list[SearchFieldOption] = []
+        for field in normalized_fields:
+            if field not in ordered_fields:
+                ordered_fields.append(field)
+
+        primary_alias = FIELD_ALIAS_MAP[ordered_fields[0]]
+        search_data: dict[str, Any] = {primary_alias: keywords}
+        additional_aliases = [FIELD_ALIAS_MAP[field] for field in ordered_fields[1:]]
 
         # Add date range if provided
         if publication_date_from or publication_date_to:
@@ -306,6 +400,11 @@ async def search_patents(
 
         # Convert to URL parameters
         params = _build_query_params(request, user_code)
+
+        # Additional fields are combined using GPSS cross-field OR (+alias)
+        for alias in additional_aliases:
+            params[f"+{alias}"] = keywords
+
         # Do not leak authentication info back to callers.
         safe_params = {key: value for key, value in params.items() if key != "userCode"}
 
@@ -450,7 +549,7 @@ async def get_search_examples() -> dict[str, Any]:
         "advanced_technical_search": {
             "description": "Search across title, abstract, and claims",
             "keywords": "lithium battery AND fast charging",
-            "search_field": "title_abstract_claims",
+            "search_field": ["title", "abstract", "claims"],
             "databases": ["TWA", "USA", "EPA", "CNA"],
             "publication_date_from": "20200101",
             "publication_date_to": "20231231",
@@ -464,7 +563,7 @@ async def get_search_examples() -> dict[str, Any]:
         "recent_patents": {
             "description": "Find recently published patents",
             "keywords": "quantum computing",
-            "search_field": "title_abstract_claims",
+            "search_field": ["title_abstract", "cited_patents"],
             "publication_date_from": "20230101",
         },
     }
