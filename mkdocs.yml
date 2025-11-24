@@ -5,7 +5,19 @@ theme:
 plugins:
   - search
   - neoteroi.mkdocsoad
+  - mkdocstrings:
+        handlers:
+          python:
+            options:
+              docstring_style: google
+              members: true
+              members_order: source
+              filters: ["!^_"]               
+              show_submodules: false   
+              separate_signature: true 
+              show_attribute_values: true
 nav:
   - Home: index.md
   - API Reference:
     - Swagger: reference/endpoints_swagger.md
+    - Enum: reference/enum.md

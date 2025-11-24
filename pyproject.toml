@@ -21,6 +21,7 @@ package = true
 dev = [
     "mkdocs>=1.6.1",
     "mkdocs-gen-files>=0.5.0",
+    "mkdocstrings-python>=1.19.0",
     "neoteroi-mkdocs>=1.1.3",
     "pytest>=7.0",
 ]
