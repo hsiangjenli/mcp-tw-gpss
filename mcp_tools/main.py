@@ -32,8 +32,6 @@ SearchFieldOption = Literal[
     "title",
     "abstract",
     "claims",
-    "title_abstract",
-    "title_abstract_claims",
     "patent_number",
     "publication_date",
     "application_number",
@@ -64,8 +62,6 @@ FIELD_ALIAS_MAP: dict[SearchFieldOption, str] = {
     "title": "TI",
     "abstract": "AB",
     "claims": "CL",
-    "title_abstract": "TI/AB",
-    "title_abstract_claims": "TI/AB/CL",
     "patent_number": "PN",
     "publication_date": "ID",
     "application_number": "AN",
@@ -112,7 +108,7 @@ class SearchPatentsRequest(BaseModel):
             "examples": [
                 {
                     "keywords": "雲端 AND 轉型",
-                    "search_field": "title_abstract_claims",
+                    "search_field": ["title", "abstract", "claims"],
                     "publication_date_from": "20220101",
                     "max_results": 50,
                 },
@@ -134,11 +130,12 @@ class SearchPatentsRequest(BaseModel):
         description=(
             "Which GPSS field group(s) to search. Provide a single value or a list "
             "to reuse the same keywords across multiple fields (additional fields "
-            "are combined with OR per GPSS API rules). Supported values include: "
-            "title, abstract, claims, title_abstract, title_abstract_claims, patent_number, "
-            "publication_date, application_number, application_date, applicant_name, first_applicant_name, "
-            "applicant_country, first_applicant_country, inventor_name, inventor_country, agent_name, examiner, "
-            "priority, priority_date, ipc, first_ipc, cpc, first_cpc, loc, fi, f_term, d_term, uspc, and cited_patents."
+            "are combined with OR per GPSS API rules). Supported values include single "
+            "fields such as: title, abstract, claims, patent_number, publication_date, "
+            "application_number, application_date, applicant_name, first_applicant_name, "
+            "applicant_country, first_applicant_country, inventor_name, inventor_country, "
+            "agent_name, examiner, priority, priority_date, ipc, first_ipc, cpc, first_cpc, "
+            "loc, fi, f_term, d_term, uspc, and cited_patents."
         ),
     )
     databases: list[str] | None = Field(
@@ -563,7 +560,7 @@ async def get_search_examples() -> dict[str, Any]:
         "recent_patents": {
             "description": "Find recently published patents",
             "keywords": "quantum computing",
-            "search_field": ["title_abstract", "cited_patents"],
+            "search_field": ["title", "abstract", "cited_patents"],
             "publication_date_from": "20230101",
         },
     }
@@ -577,11 +574,14 @@ async def tool_search_patents(payload: SearchPatentsRequest) -> SearchPatentsRes
 
     This tool searches the GPSS (Global Patent Search System) for patents matching
     your keywords. Authentication is handled automatically via the USER_CODE
-    environment variable—you don't need to provide credentials in your request.
+    environment variable.
 
     Simply provide your search keywords and optional filters. The tool will:
+
     1. Automatically read USER_CODE from the environment
+
     2. Send the request to GPSS API
+    
     3. Return parsed results with patent numbers, titles, abstracts, and inventor info
     """
 
