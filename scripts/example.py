@@ -13,14 +13,14 @@ async def main():
     )
 
     if result["success"]:
-        print("✅ Search successful!")
+        print("Search successful!")
         print(f"Request params: {result.get('request_params', {}).keys()}")
         temp = xml.dom.minidom.parseString(result["data"]["raw"])
         pretty_xml = temp.toprettyxml(indent="  ", newl="")
         print(pretty_xml)
 
     else:
-        print(f"❌ Error: {result.get('error')}")
+        print(f"Error: {result.get('error')}")
 
 
 asyncio.run(main())
