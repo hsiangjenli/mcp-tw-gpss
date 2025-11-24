@@ -237,11 +237,9 @@ if __name__ == "__main__":
     with open("docs/reference/endpoints.md", "w") as f:
         f.write(endpoints_content)
 
-    # Generate models documentation
-    models_content = generate_models_markdown(openapi_data)
-    with open("docs/reference/models.md", "w") as f:
-        f.write(models_content)
-
+    # Note: we intentionally do NOT generate a separate models page here.
+    # The endpoints documentation inlines referenced component schemas so
+    # the endpoint docs are self-contained and there are no duplicate
+    # enum/model definitions elsewhere.
     print("OpenAPI documentation generated:")
     print("- API Endpoints: docs/reference/endpoints.md")
-    print("- Data Models: docs/reference/models.md")
