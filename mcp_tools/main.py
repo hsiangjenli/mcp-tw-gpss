@@ -81,9 +81,6 @@ class SearchPatentsRequest(BaseModel):
         default=None,
         description="Upper bound for publication date (YYYYMMDD)",
     )
-    output_format: Literal["json", "xml"] = Field(
-        "json", description="Desired GPSS export format"
-    )
     max_results: int = Field(
         30,
         ge=1,
@@ -204,7 +201,6 @@ async def search_patents(
     patent_types: list[str] | None = None,
     publication_date_from: str | None = None,
     publication_date_to: str | None = None,
-    output_format: str = "json",
     max_results: int = 30,
 ) -> dict[str, Any]:
     """
@@ -221,7 +217,6 @@ async def search_patents(
         patent_types: List of patent type codes (I=invention, M=utility model, D=design)
         publication_date_from: Publication date from (YYYYMMDD format)
         publication_date_to: Publication date to (YYYYMMDD format)
-        output_format: Output format (xml or json)
         max_results: Maximum number of results to return (1-500)
 
     Returns:
@@ -288,9 +283,9 @@ async def search_patents(
 
         search_settings = SearchSettings.model_validate(settings_data or {})
 
-        # Build output settings
+        # Build output settings (always use XML format)
         output_settings = OutputSettings(
-            expFmt=OutputFormat.JSON if output_format == "json" else OutputFormat.XML,
+            expFmt=OutputFormat.XML,
             expQty=max_results,
             expSkip=0,
             expFld=[
