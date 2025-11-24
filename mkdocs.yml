@@ -1,5 +1,5 @@
-site_name: Python MCP Template
-site_author: Your Name
+site_name: TW GPSS (Unofficial) MCP Tools Documentation
+site_author: Hsiang-Jen Li
 theme:
   name: readthedocs
 plugins:
@@ -8,6 +8,4 @@ plugins:
 nav:
   - Home: index.md
   - API Reference:
-    - Endpoints: reference/endpoints.md
-    - Swagger(neoteroi.mkdocsoad): reference/endpoints_swagger.md
-    - Data Models: reference/models.md
+    - Swagger: reference/endpoints_swagger.md
