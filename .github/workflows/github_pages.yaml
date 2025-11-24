@@ -1,0 +1,43 @@
+name: Deploy GitHub Pages
+on:
+  push:
+    tags:
+      - 'v*'
+jobs:
+  deploy-github-pages:
+    runs-on: ubuntu-latest
+    environment: 
+      name: GLOBAL     
+    steps:
+      -
+        name: Checkout
+        uses: actions/checkout@v2
+      - 
+        name: "Set up Python"
+        uses: actions/setup-python@v6
+        with:
+          python-version-file: ".python-version"
+      - 
+        name: Install uv
+        uses: astral-sh/setup-uv@v6
+      - 
+        name: Copy README.md to docs/index.md
+        run: |
+          cp README.md docs/index.md
+      - 
+        name: Install the project
+        run: uv sync --locked --all-extras --dev
+      - 
+        name: Generate Documentation from OpenAPI Spec
+        run: |
+          ./scripts/build_docs.sh
+      -
+        name: Build documentation
+        run: |
+          uv run mkdocs build
+      -
+        name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./site
