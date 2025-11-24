@@ -1,2 +1,2 @@
-# Enum
+# Schemas
 ::: mcp_tools.schemas
