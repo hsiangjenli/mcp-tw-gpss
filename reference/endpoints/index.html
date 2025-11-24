@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="author" content="Hsiang-Jen Li" />
+      <link rel="shortcut icon" href="../../img/favicon.ico" />
+    <title>Endpoints - TW GPSS (Unofficial) MCP Tools Documentation</title>
+    <link rel="stylesheet" href="../../css/theme.css" />
+    <link rel="stylesheet" href="../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+        <link href="../../assets/_mkdocstrings.css" rel="stylesheet" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Endpoints";
+        var mkdocs_page_input_path = "reference/endpoints.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../.." class="icon icon-home"> TW GPSS (Unofficial) MCP Tools Documentation
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../..">Home</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">API Reference</span></p>
+              <ul class="current">
+                  <li class="toctree-l1 current"><a class="reference internal current" href="#">Endpoints</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#toolssearch_patents">/tools/search_patents</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#post">POST</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#toolsget_available_databases">/tools/get_available_databases</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#post_1">POST</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#toolsget_search_examples">/tools/get_search_examples</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#post_2">POST</a>
+    </li>
+        </ul>
+    </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../schemas/">Schemas</a>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../..">TW GPSS (Unofficial) MCP Tools Documentation</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../.." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">API Reference</li>
+      <li class="breadcrumb-item active">Endpoints</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="api-endpoints">API Endpoints</h1>
+<p>Version: 1.0.0
+MCP tools for searching patents in the Global Patent Search System</p>
+<h2 id="toolssearch_patents">/tools/search_patents</h2>
+<h3 id="post">POST</h3>
+<p><strong>Summary:</strong> Tool Search Patents</p>
+<p><strong>Description:</strong> MCP Tool endpoint for patent search.</p>
+<p>This tool searches the GPSS (Global Patent Search System) for patents matching
+your keywords. Authentication is handled automatically via the USER_CODE
+environment variable.</p>
+<p>Simply provide your search keywords and optional filters. The tool will:</p>
+<ol>
+<li>
+<p>Automatically read USER_CODE from the environment</p>
+</li>
+<li>
+<p>Send the request to GPSS API</p>
+</li>
+<li>
+<p>Return parsed results with patent numbers, titles, abstracts, and inventor info</p>
+</li>
+</ol>
+<p><strong>Request Body:</strong></p>
+<p>Content-Type: <code>application/json</code></p>
+<p>Schema:</p>
+<pre><code class="language-json">{
+  &quot;keywords&quot;: string (required)  // Keyword expression understood by GPSS (e.g., '雲端 AND 轉型')
+  &quot;search_field&quot;: unknown,  // Which GPSS field group(s) to search. Provide a single value or a list to reuse the same keywords across multiple fields (additional fields are combined with OR per GPSS API rules). Supported values include single fields such as: title, abstract, claims, patent_number, publication_date, application_number, application_date, applicant_name, first_applicant_name, applicant_country, first_applicant_country, inventor_name, inventor_country, agent_name, examiner, priority, priority_date, ipc, first_ipc, cpc, first_cpc, loc, fi, f_term, d_term, uspc, and cited_patents.
+  &quot;databases&quot;: unknown,  // Optional list of GPSS database codes (patDB)
+  &quot;application_types&quot;: unknown,  // Optional list of GPSS application type codes (patAG)
+  &quot;patent_types&quot;: unknown,  // Optional list of GPSS patent type codes (patTY)
+  &quot;publication_date_from&quot;: unknown,  // Lower bound for publication date (YYYYMMDD)
+  &quot;publication_date_to&quot;: unknown,  // Upper bound for publication date (YYYYMMDD)
+  &quot;max_results&quot;: integer,  // Maximum number of results to request from GPSS
+}
+</code></pre>
+<p><strong>Responses:</strong></p>
+<p><strong>200</strong>: Successful Response</p>
+<p>Content-Type: <code>application/json</code></p>
+<p>Schema:</p>
+<pre><code class="language-json">{
+  &quot;success&quot;: boolean (required)  // 
+  &quot;data&quot;: unknown,  // 
+  &quot;request_params&quot;: unknown,  // 
+  &quot;error&quot;: unknown,  // 
+}
+</code></pre>
+<p><strong>422</strong>: Validation Error</p>
+<p>Content-Type: <code>application/json</code></p>
+<p>Schema:</p>
+<pre><code class="language-json">{
+  &quot;detail&quot;: [ValidationError]  // 
+}
+</code></pre>
+<hr />
+<h2 id="toolsget_available_databases">/tools/get_available_databases</h2>
+<h3 id="post_1">POST</h3>
+<p><strong>Summary:</strong> Tool Get Databases</p>
+<p><strong>Description:</strong> MCP Tool endpoint for getting available databases.</p>
+<p><strong>Responses:</strong></p>
+<p><strong>200</strong>: Successful Response</p>
+<p>Content-Type: <code>application/json</code></p>
+<p>Schema:</p>
+<pre><code class="language-json">{
+  &quot;success&quot;: boolean (required)  // 
+  &quot;databases&quot;: object (required),  // 
+}
+</code></pre>
+<hr />
+<h2 id="toolsget_search_examples">/tools/get_search_examples</h2>
+<h3 id="post_2">POST</h3>
+<p><strong>Summary:</strong> Tool Get Examples</p>
+<p><strong>Description:</strong> MCP Tool endpoint for getting search examples.</p>
+<p><strong>Responses:</strong></p>
+<p><strong>200</strong>: Successful Response</p>
+<p>Content-Type: <code>application/json</code></p>
+<p>Schema:</p>
+<pre><code class="language-json">{
+  &quot;success&quot;: boolean (required)  // 
+  &quot;examples&quot;: object (required),  // 
+}
+</code></pre>
+<hr />
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../.." class="btn btn-neutral float-left" title="Home"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../schemas/" class="btn btn-neutral float-right" title="Schemas">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+      <span><a href="../.." style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../schemas/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../..";</script>
+    <script src="../../js/theme_extra.js"></script>
+    <script src="../../js/theme.js"></script>
+      <script src="../../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

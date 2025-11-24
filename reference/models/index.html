@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="author" content="Hsiang-Jen Li" />
+      <link rel="shortcut icon" href="../../img/favicon.ico" />
+    <title>Data Models - TW GPSS (Unofficial) MCP Tools Documentation</title>
+    <link rel="stylesheet" href="../../css/theme.css" />
+    <link rel="stylesheet" href="../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+        <link href="../../assets/_mkdocstrings.css" rel="stylesheet" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Data Models";
+        var mkdocs_page_input_path = "reference/models.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../.." class="icon icon-home"> TW GPSS (Unofficial) MCP Tools Documentation
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../..">Home</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">API Reference</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../endpoints/">Endpoints</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../schemas/">Schemas</a>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../..">TW GPSS (Unofficial) MCP Tools Documentation</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../.." class="icon icon-home" aria-label="Docs"></a></li>
+      <li class="breadcrumb-item active">Data Models</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="data-models">Data Models</h1>
+<p>This page contains all the data models used in the API.</p>
+<h2 id="databasesresponse">DatabasesResponse</h2>
+<p><strong>Schema:</strong></p>
+<pre><code class="language-json">{
+  &quot;success&quot;: boolean (required)  // 
+  &quot;databases&quot;: object (required),  // 
+}
+</code></pre>
+<p><strong>Properties:</strong></p>
+<ul>
+<li>
+<p><strong>success</strong> <em>(required)</em>: <code>boolean</code></p>
+</li>
+<li>
+<p><strong>databases</strong> <em>(required)</em>: <code>object</code></p>
+</li>
+</ul>
+<hr />
+<h2 id="gpssapiresponse">GPSSAPIResponse</h2>
+<p><strong>Description:</strong> GPSS API response wrapper.</p>
+<p><strong>Schema:</strong></p>
+<pre><code class="language-json">{
+  &quot;total_count&quot;: unknown  // Total number of matching records
+  &quot;returned_count&quot;: unknown,  // Number of records in this response
+  &quot;records&quot;: unknown,  // List of patent records
+}
+</code></pre>
+<p><strong>Properties:</strong></p>
+<ul>
+<li><strong>total_count</strong>: <code>unknown</code></li>
+<li>
+<p>Description: Total number of matching records</p>
+</li>
+<li>
+<p><strong>returned_count</strong>: <code>unknown</code></p>
+</li>
+<li>
+<p>Description: Number of records in this response</p>
+</li>
+<li>
+<p><strong>records</strong>: <code>unknown</code></p>
+</li>
+<li>Description: List of patent records</li>
+</ul>
+<hr />
+<h2 id="httpvalidationerror">HTTPValidationError</h2>
+<p><strong>Schema:</strong></p>
+<pre><code class="language-json">{
+  &quot;detail&quot;: [ValidationError]  // 
+}
+</code></pre>
+<p><strong>Properties:</strong></p>
+<ul>
+<li><strong>detail</strong>: <code>[ValidationError]</code></li>
+</ul>
+<hr />
+<h2 id="patentrecord">PatentRecord</h2>
+<p><strong>Description:</strong> Single patent record from API response.</p>
+<p><strong>Schema:</strong></p>
+<pre><code class="language-json">{
+  &quot;PN&quot;: unknown  // Publication/announcement number (公開/公告號)
+  &quot;ID&quot;: unknown,  // Publication/announcement date (公開/公告日)
+  &quot;AN&quot;: unknown,  // Application number (申請號)
+  &quot;AD&quot;: unknown,  // Application date (申請日)
+  &quot;PA&quot;: unknown,  // Applicant name (申請人名)
+  &quot;AF&quot;: unknown,  // First applicant name (第一申請人名)
+  &quot;AY&quot;: unknown,  // Applicant country (申請人國別)
+  &quot;AZ&quot;: unknown,  // First applicant country (第一申請人國別)
+  &quot;IN&quot;: unknown,  // Inventor name (發明人名)
+  &quot;IY&quot;: unknown,  // Inventor country (發明人國別)
+  &quot;LX&quot;: unknown,  // Agent / attorney name (代理人名)
+  &quot;EX&quot;: unknown,  // Examiner (審查委員)
+  &quot;PR&quot;: unknown,  // Priority claim (優先權)
+  &quot;DR&quot;: unknown,  // Priority date (優先權日)
+  &quot;IC&quot;: unknown,  // IPC classification (IPC)
+  &quot;FC&quot;: unknown,  // First IPC (第一 IPC)
+  &quot;CS&quot;: unknown,  // CPC classification (CPC)
+  &quot;TS&quot;: unknown,  // First CPC (第一 CPC)
+  &quot;IQ&quot;: unknown,  // LOC classification (LOC)
+  &quot;FI&quot;: unknown,  // FI classification (FI)
+  &quot;FT&quot;: unknown,  // F-TERM (F-TERM)
+  &quot;IR&quot;: unknown,  // D-TERM (D-TERM)
+  &quot;UC&quot;: unknown,  // USPC classification (USPC)
+  &quot;TI&quot;: unknown,  // Patent title (專利名稱)
+  &quot;AB&quot;: unknown,  // Abstract (摘要)
+  &quot;CL&quot;: unknown,  // Claims / patent scope (專利範圍)
+  &quot;CI&quot;: unknown,  // Cited patents / references (引用專利)
+}
+</code></pre>
+<p><strong>Properties:</strong></p>
+<ul>
+<li><strong>PN</strong>: <code>unknown</code></li>
+<li>
+<p>Description: Publication/announcement number (公開/公告號)</p>
+</li>
+<li>
+<p><strong>ID</strong>: <code>unknown</code></p>
+</li>
+<li>
+<p>Description: Publication/announcement date (公開/公告日)</p>
+</li>
+<li>
+<p><strong>AN</strong>: <code>unknown</code></p>
+</li>
+<li>
+<p>Description: Application number (申請號)</p>
+</li>
+<li>
+<p><strong>AD</strong>: <code>unknown</code></p>
+</li>
+<li>
+<p>Description: Application date (申請日)</p>
+</li>
+<li>
+<p><strong>PA</strong>: <code>unknown</code></p>
+</li>
+<li>
+<p>Description: Applicant name (申請人名)</p>
+</li>
+<li>
+<p><strong>AF</strong>: <code>unknown</code></p>
+</li>
+<li>
+<p>Description: First applicant name (第一申請人名)</p>
+</li>
+<li>
+<p><strong>AY</strong>: <code>unknown</code></p>
+</li>
+<li>
+<p>Description: Applicant country (申請人國別)</p>
+</li>
+<li>
+<p><strong>AZ</strong>: <code>unknown</code></p>
+</li>
+<li>
+<p>Description: First applicant country (第一申請人國別)</p>
+</li>
+<li>
+<p><strong>IN</strong>: <code>unknown</code></p>
+</li>
+<li>
+<p>Description: Inventor name (發明人名)</p>
+</li>
+<li>
+<p><strong>IY</strong>: <code>unknown</code></p>
+</li>
+<li>
+<p>Description: Inventor country (發明人國別)</p>
+</li>
+<li>
+<p><strong>LX</strong>: <code>unknown</code></p>
+</li>
+<li>
+<p>Description: Agent / attorney name (代理人名)</p>
+</li>
+<li>
+<p><strong>EX</strong>: <code>unknown</code></p>
+</li>
+<li>
+<p>Description: Examiner (審查委員)</p>
+</li>
+<li>
+<p><strong>PR</strong>: <code>unknown</code></p>
+</li>
+<li>
+<p>Description: Priority claim (優先權)</p>
+</li>
+<li>
+<p><strong>DR</strong>: <code>unknown</code></p>
+</li>
+<li>
+<p>Description: Priority date (優先權日)</p>
+</li>
+<li>
+<p><strong>IC</strong>: <code>unknown</code></p>
+</li>
+<li>
+<p>Description: IPC classification (IPC)</p>
+</li>
+<li>
+<p><strong>FC</strong>: <code>unknown</code></p>
+</li>
+<li>
+<p>Description: First IPC (第一 IPC)</p>
+</li>
+<li>
+<p><strong>CS</strong>: <code>unknown</code></p>
+</li>
+<li>
+<p>Description: CPC classification (CPC)</p>
+</li>
+<li>
+<p><strong>TS</strong>: <code>unknown</code></p>
+</li>
+<li>
+<p>Description: First CPC (第一 CPC)</p>
+</li>
+<li>
+<p><strong>IQ</strong>: <code>unknown</code></p>
+</li>
+<li>
+<p>Description: LOC classification (LOC)</p>
+</li>
+<li>
+<p><strong>FI</strong>: <code>unknown</code></p>
+</li>
+<li>
+<p>Description: FI classification (FI)</p>
+</li>
+<li>
+<p><strong>FT</strong>: <code>unknown</code></p>
+</li>
+<li>
+<p>Description: F-TERM (F-TERM)</p>
+</li>
+<li>
+<p><strong>IR</strong>: <code>unknown</code></p>
+</li>
+<li>
+<p>Description: D-TERM (D-TERM)</p>
+</li>
+<li>
+<p><strong>UC</strong>: <code>unknown</code></p>
+</li>
+<li>
+<p>Description: USPC classification (USPC)</p>
+</li>
+<li>
+<p><strong>TI</strong>: <code>unknown</code></p>
+</li>
+<li>
+<p>Description: Patent title (專利名稱)</p>
+</li>
+<li>
+<p><strong>AB</strong>: <code>unknown</code></p>
+</li>
+<li>
+<p>Description: Abstract (摘要)</p>
+</li>
+<li>
+<p><strong>CL</strong>: <code>unknown</code></p>
+</li>
+<li>
+<p>Description: Claims / patent scope (專利範圍)</p>
+</li>
+<li>
+<p><strong>CI</strong>: <code>unknown</code></p>
+</li>
+<li>Description: Cited patents / references (引用專利)</li>
+</ul>
+<hr />
+<h2 id="searchexample">SearchExample</h2>
+<p><strong>Description:</strong> Example search configuration for quick reference.</p>
+<p><strong>Schema:</strong></p>
+<pre><code class="language-json">{
+  &quot;description&quot;: string (required)  // 
+  &quot;keywords&quot;: string (required),  // 
+  &quot;search_field&quot;: unknown (required),  // 
+  &quot;databases&quot;: unknown,  // 
+  &quot;publication_date_from&quot;: unknown,  // 
+  &quot;publication_date_to&quot;: unknown,  // 
+}
+</code></pre>
+<p><strong>Properties:</strong></p>
+<ul>
+<li>
+<p><strong>description</strong> <em>(required)</em>: <code>string</code></p>
+</li>
+<li>
+<p><strong>keywords</strong> <em>(required)</em>: <code>string</code></p>
+</li>
+<li>
+<p><strong>search_field</strong> <em>(required)</em>: <code>unknown</code></p>
+</li>
+<li>
+<p><strong>databases</strong>: <code>unknown</code></p>
+</li>
+<li>
+<p><strong>publication_date_from</strong>: <code>unknown</code></p>
+</li>
+<li>
+<p><strong>publication_date_to</strong>: <code>unknown</code></p>
+</li>
+</ul>
+<hr />
+<h2 id="searchexamplesresponse">SearchExamplesResponse</h2>
+<p><strong>Schema:</strong></p>
+<pre><code class="language-json">{
+  &quot;success&quot;: boolean (required)  // 
+  &quot;examples&quot;: object (required),  // 
+}
+</code></pre>
+<p><strong>Properties:</strong></p>
+<ul>
+<li>
+<p><strong>success</strong> <em>(required)</em>: <code>boolean</code></p>
+</li>
+<li>
+<p><strong>examples</strong> <em>(required)</em>: <code>object</code></p>
+</li>
+</ul>
+<hr />
+<h2 id="searchpatentsdata">SearchPatentsData</h2>
+<p><strong>Description:</strong> Container for the GPSS raw payload and optional parsed response.</p>
+<p>Note: <code>parsed</code> is typed as <code>GPSSAPIResponse | None</code> so OpenAPI can fully
+document the nested <code>PatentRecord</code> fields and their descriptions. When the
+MCP receives JSON from GPSS we attempt to validate into <code>GPSSAPIResponse</code>.</p>
+<p><strong>Schema:</strong></p>
+<pre><code class="language-json">{
+  &quot;raw&quot;: unknown (required)  // Raw GPSS response (JSON dict or XML text)
+  &quot;parsed&quot;: unknown,  // Parsed GPSS payload when JSON mode succeeds
+}
+</code></pre>
+<p><strong>Properties:</strong></p>
+<ul>
+<li><strong>raw</strong> <em>(required)</em>: <code>unknown</code></li>
+<li>
+<p>Description: Raw GPSS response (JSON dict or XML text)</p>
+</li>
+<li>
+<p><strong>parsed</strong>: <code>unknown</code></p>
+</li>
+<li>Description: Parsed GPSS payload when JSON mode succeeds</li>
+</ul>
+<hr />
+<h2 id="searchpatentsrequest">SearchPatentsRequest</h2>
+<p><strong>Description:</strong> Provide patent search criteria only. Authentication is handled internally by reading the USER_CODE environment variable; callers must not supply userCode in the request.</p>
+<p><strong>Schema:</strong></p>
+<pre><code class="language-json">{
+  &quot;keywords&quot;: string (required)  // Keyword expression understood by GPSS (e.g., '雲端 AND 轉型')
+  &quot;search_field&quot;: unknown,  // Which GPSS field group(s) to search. Provide a single value or a list to reuse the same keywords across multiple fields (additional fields are combined with OR per GPSS API rules). Supported values include single fields such as: title, abstract, claims, patent_number, publication_date, application_number, application_date, applicant_name, first_applicant_name, applicant_country, first_applicant_country, inventor_name, inventor_country, agent_name, examiner, priority, priority_date, ipc, first_ipc, cpc, first_cpc, loc, fi, f_term, d_term, uspc, and cited_patents.
+  &quot;databases&quot;: unknown,  // Optional list of GPSS database codes (patDB)
+  &quot;application_types&quot;: unknown,  // Optional list of GPSS application type codes (patAG)
+  &quot;patent_types&quot;: unknown,  // Optional list of GPSS patent type codes (patTY)
+  &quot;publication_date_from&quot;: unknown,  // Lower bound for publication date (YYYYMMDD)
+  &quot;publication_date_to&quot;: unknown,  // Upper bound for publication date (YYYYMMDD)
+  &quot;max_results&quot;: integer,  // Maximum number of results to request from GPSS
+}
+</code></pre>
+<p><strong>Properties:</strong></p>
+<ul>
+<li><strong>keywords</strong> <em>(required)</em>: <code>string</code></li>
+<li>
+<p>Description: Keyword expression understood by GPSS (e.g., '雲端 AND 轉型')</p>
+</li>
+<li>
+<p><strong>search_field</strong>: <code>unknown</code></p>
+</li>
+<li>
+<p>Description: Which GPSS field group(s) to search. Provide a single value or a list to reuse the same keywords across multiple fields (additional fields are combined with OR per GPSS API rules). Supported values include single fields such as: title, abstract, claims, patent_number, publication_date, application_number, application_date, applicant_name, first_applicant_name, applicant_country, first_applicant_country, inventor_name, inventor_country, agent_name, examiner, priority, priority_date, ipc, first_ipc, cpc, first_cpc, loc, fi, f_term, d_term, uspc, and cited_patents.</p>
+</li>
+<li>
+<p><strong>databases</strong>: <code>unknown</code></p>
+</li>
+<li>
+<p>Description: Optional list of GPSS database codes (patDB)</p>
+</li>
+<li>
+<p><strong>application_types</strong>: <code>unknown</code></p>
+</li>
+<li>
+<p>Description: Optional list of GPSS application type codes (patAG)</p>
+</li>
+<li>
+<p><strong>patent_types</strong>: <code>unknown</code></p>
+</li>
+<li>
+<p>Description: Optional list of GPSS patent type codes (patTY)</p>
+</li>
+<li>
+<p><strong>publication_date_from</strong>: <code>unknown</code></p>
+</li>
+<li>
+<p>Description: Lower bound for publication date (YYYYMMDD)</p>
+</li>
+<li>
+<p><strong>publication_date_to</strong>: <code>unknown</code></p>
+</li>
+<li>
+<p>Description: Upper bound for publication date (YYYYMMDD)</p>
+</li>
+<li>
+<p><strong>max_results</strong>: <code>integer</code></p>
+</li>
+<li>Description: Maximum number of results to request from GPSS</li>
+</ul>
+<hr />
+<h2 id="searchpatentsresult">SearchPatentsResult</h2>
+<p><strong>Description:</strong> Standard return model for MCP tool operations.</p>
+<p><strong>Schema:</strong></p>
+<pre><code class="language-json">{
+  &quot;success&quot;: boolean (required)  // 
+  &quot;data&quot;: unknown,  // 
+  &quot;request_params&quot;: unknown,  // 
+  &quot;error&quot;: unknown,  // 
+}
+</code></pre>
+<p><strong>Properties:</strong></p>
+<ul>
+<li>
+<p><strong>success</strong> <em>(required)</em>: <code>boolean</code></p>
+</li>
+<li>
+<p><strong>data</strong>: <code>unknown</code></p>
+</li>
+<li>
+<p><strong>request_params</strong>: <code>unknown</code></p>
+</li>
+<li>
+<p><strong>error</strong>: <code>unknown</code></p>
+</li>
+</ul>
+<hr />
+<h2 id="validationerror">ValidationError</h2>
+<p><strong>Schema:</strong></p>
+<pre><code class="language-json">{
+  &quot;loc&quot;: [unknown] (required)  // 
+  &quot;msg&quot;: string (required),  // 
+  &quot;type&quot;: string (required),  // 
+}
+</code></pre>
+<p><strong>Properties:</strong></p>
+<ul>
+<li>
+<p><strong>loc</strong> <em>(required)</em>: <code>[unknown]</code></p>
+</li>
+<li>
+<p><strong>msg</strong> <em>(required)</em>: <code>string</code></p>
+</li>
+<li>
+<p><strong>type</strong> <em>(required)</em>: <code>string</code></p>
+</li>
+</ul>
+<hr />
+              
+            </div>
+          </div><footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+    
+  </span>
+</div>
+    <script src="../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../..";</script>
+    <script src="../../js/theme_extra.js"></script>
+    <script src="../../js/theme.js"></script>
+      <script src="../../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

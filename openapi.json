@@ -1,0 +1,951 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "GPSS Patent Search MCP",
+    "description": "MCP tools for searching patents in the Global Patent Search System",
+    "version": "1.0.0"
+  },
+  "paths": {
+    "/tools/search_patents": {
+      "post": {
+        "summary": "Tool Search Patents",
+        "description": "MCP Tool endpoint for patent search.\n\nThis tool searches the GPSS (Global Patent Search System) for patents matching\nyour keywords. Authentication is handled automatically via the USER_CODE\nenvironment variable.\n\nSimply provide your search keywords and optional filters. The tool will:\n\n1. Automatically read USER_CODE from the environment\n\n2. Send the request to GPSS API\n\n3. Return parsed results with patent numbers, titles, abstracts, and inventor info",
+        "operationId": "tool_search_patents_tools_search_patents_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SearchPatentsRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SearchPatentsResult"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/tools/get_available_databases": {
+      "post": {
+        "summary": "Tool Get Databases",
+        "description": "MCP Tool endpoint for getting available databases.",
+        "operationId": "tool_get_databases_tools_get_available_databases_post",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DatabasesResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/tools/get_search_examples": {
+      "post": {
+        "summary": "Tool Get Examples",
+        "description": "MCP Tool endpoint for getting search examples.",
+        "operationId": "tool_get_examples_tools_get_search_examples_post",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SearchExamplesResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "DatabasesResponse": {
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "title": "Success"
+          },
+          "databases": {
+            "additionalProperties": {
+              "additionalProperties": {
+                "type": "string"
+              },
+              "type": "object"
+            },
+            "type": "object",
+            "title": "Databases"
+          }
+        },
+        "type": "object",
+        "required": [
+          "success",
+          "databases"
+        ],
+        "title": "DatabasesResponse"
+      },
+      "GPSSAPIResponse": {
+        "properties": {
+          "total_count": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Total Count",
+            "description": "Total number of matching records"
+          },
+          "returned_count": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Returned Count",
+            "description": "Number of records in this response"
+          },
+          "records": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/PatentRecord"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Records",
+            "description": "List of patent records"
+          }
+        },
+        "type": "object",
+        "title": "GPSSAPIResponse",
+        "description": "GPSS API response wrapper."
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "type": "array",
+            "title": "Detail"
+          }
+        },
+        "type": "object",
+        "title": "HTTPValidationError"
+      },
+      "PatentRecord": {
+        "properties": {
+          "PN": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Pn",
+            "description": "Publication/announcement number (\u516c\u958b/\u516c\u544a\u865f)"
+          },
+          "ID": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Id",
+            "description": "Publication/announcement date (\u516c\u958b/\u516c\u544a\u65e5)"
+          },
+          "AN": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "An",
+            "description": "Application number (\u7533\u8acb\u865f)"
+          },
+          "AD": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ad",
+            "description": "Application date (\u7533\u8acb\u65e5)"
+          },
+          "PA": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Pa",
+            "description": "Applicant name (\u7533\u8acb\u4eba\u540d)"
+          },
+          "AF": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Af",
+            "description": "First applicant name (\u7b2c\u4e00\u7533\u8acb\u4eba\u540d)"
+          },
+          "AY": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ay",
+            "description": "Applicant country (\u7533\u8acb\u4eba\u570b\u5225)"
+          },
+          "AZ": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Az",
+            "description": "First applicant country (\u7b2c\u4e00\u7533\u8acb\u4eba\u570b\u5225)"
+          },
+          "IN": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "In",
+            "description": "Inventor name (\u767c\u660e\u4eba\u540d)"
+          },
+          "IY": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Iy",
+            "description": "Inventor country (\u767c\u660e\u4eba\u570b\u5225)"
+          },
+          "LX": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Lx",
+            "description": "Agent / attorney name (\u4ee3\u7406\u4eba\u540d)"
+          },
+          "EX": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ex",
+            "description": "Examiner (\u5be9\u67e5\u59d4\u54e1)"
+          },
+          "PR": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Pr",
+            "description": "Priority claim (\u512a\u5148\u6b0a)"
+          },
+          "DR": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Dr",
+            "description": "Priority date (\u512a\u5148\u6b0a\u65e5)"
+          },
+          "IC": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ic",
+            "description": "IPC classification (IPC)"
+          },
+          "FC": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Fc",
+            "description": "First IPC (\u7b2c\u4e00 IPC)"
+          },
+          "CS": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cs",
+            "description": "CPC classification (CPC)"
+          },
+          "TS": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ts",
+            "description": "First CPC (\u7b2c\u4e00 CPC)"
+          },
+          "IQ": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Iq",
+            "description": "LOC classification (LOC)"
+          },
+          "FI": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Fi",
+            "description": "FI classification (FI)"
+          },
+          "FT": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ft",
+            "description": "F-TERM (F-TERM)"
+          },
+          "IR": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ir",
+            "description": "D-TERM (D-TERM)"
+          },
+          "UC": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Uc",
+            "description": "USPC classification (USPC)"
+          },
+          "TI": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ti",
+            "description": "Patent title (\u5c08\u5229\u540d\u7a31)"
+          },
+          "AB": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ab",
+            "description": "Abstract (\u6458\u8981)"
+          },
+          "CL": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cl",
+            "description": "Claims / patent scope (\u5c08\u5229\u7bc4\u570d)"
+          },
+          "CI": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ci",
+            "description": "Cited patents / references (\u5f15\u7528\u5c08\u5229)"
+          }
+        },
+        "type": "object",
+        "title": "PatentRecord",
+        "description": "Single patent record from API response."
+      },
+      "SearchExample": {
+        "properties": {
+          "description": {
+            "type": "string",
+            "title": "Description"
+          },
+          "keywords": {
+            "type": "string",
+            "title": "Keywords"
+          },
+          "search_field": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "title",
+                  "abstract",
+                  "claims",
+                  "patent_number",
+                  "publication_date",
+                  "application_number",
+                  "application_date",
+                  "applicant_name",
+                  "first_applicant_name",
+                  "applicant_country",
+                  "first_applicant_country",
+                  "inventor_name",
+                  "inventor_country",
+                  "agent_name",
+                  "examiner",
+                  "priority",
+                  "priority_date",
+                  "ipc",
+                  "first_ipc",
+                  "cpc",
+                  "first_cpc",
+                  "loc",
+                  "fi",
+                  "f_term",
+                  "d_term",
+                  "uspc",
+                  "cited_patents"
+                ]
+              },
+              {
+                "items": {
+                  "type": "string",
+                  "enum": [
+                    "title",
+                    "abstract",
+                    "claims",
+                    "patent_number",
+                    "publication_date",
+                    "application_number",
+                    "application_date",
+                    "applicant_name",
+                    "first_applicant_name",
+                    "applicant_country",
+                    "first_applicant_country",
+                    "inventor_name",
+                    "inventor_country",
+                    "agent_name",
+                    "examiner",
+                    "priority",
+                    "priority_date",
+                    "ipc",
+                    "first_ipc",
+                    "cpc",
+                    "first_cpc",
+                    "loc",
+                    "fi",
+                    "f_term",
+                    "d_term",
+                    "uspc",
+                    "cited_patents"
+                  ]
+                },
+                "type": "array"
+              }
+            ],
+            "title": "Search Field"
+          },
+          "databases": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Databases"
+          },
+          "publication_date_from": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Publication Date From"
+          },
+          "publication_date_to": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Publication Date To"
+          }
+        },
+        "type": "object",
+        "required": [
+          "description",
+          "keywords",
+          "search_field"
+        ],
+        "title": "SearchExample",
+        "description": "Example search configuration for quick reference."
+      },
+      "SearchExamplesResponse": {
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "title": "Success"
+          },
+          "examples": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/SearchExample"
+            },
+            "type": "object",
+            "title": "Examples"
+          }
+        },
+        "type": "object",
+        "required": [
+          "success",
+          "examples"
+        ],
+        "title": "SearchExamplesResponse"
+      },
+      "SearchPatentsData": {
+        "properties": {
+          "raw": {
+            "title": "Raw",
+            "description": "Raw GPSS response (JSON dict or XML text)"
+          },
+          "parsed": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/GPSSAPIResponse"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Parsed GPSS payload when JSON mode succeeds"
+          }
+        },
+        "type": "object",
+        "required": [
+          "raw"
+        ],
+        "title": "SearchPatentsData",
+        "description": "Container for the GPSS raw payload and optional parsed response.\n\nNote: `parsed` is typed as `GPSSAPIResponse | None` so OpenAPI can fully\ndocument the nested `PatentRecord` fields and their descriptions. When the\nMCP receives JSON from GPSS we attempt to validate into `GPSSAPIResponse`."
+      },
+      "SearchPatentsRequest": {
+        "properties": {
+          "keywords": {
+            "type": "string",
+            "title": "Keywords",
+            "description": "Keyword expression understood by GPSS (e.g., '\u96f2\u7aef AND \u8f49\u578b')"
+          },
+          "search_field": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "title",
+                  "abstract",
+                  "claims",
+                  "patent_number",
+                  "publication_date",
+                  "application_number",
+                  "application_date",
+                  "applicant_name",
+                  "first_applicant_name",
+                  "applicant_country",
+                  "first_applicant_country",
+                  "inventor_name",
+                  "inventor_country",
+                  "agent_name",
+                  "examiner",
+                  "priority",
+                  "priority_date",
+                  "ipc",
+                  "first_ipc",
+                  "cpc",
+                  "first_cpc",
+                  "loc",
+                  "fi",
+                  "f_term",
+                  "d_term",
+                  "uspc",
+                  "cited_patents"
+                ]
+              },
+              {
+                "items": {
+                  "type": "string",
+                  "enum": [
+                    "title",
+                    "abstract",
+                    "claims",
+                    "patent_number",
+                    "publication_date",
+                    "application_number",
+                    "application_date",
+                    "applicant_name",
+                    "first_applicant_name",
+                    "applicant_country",
+                    "first_applicant_country",
+                    "inventor_name",
+                    "inventor_country",
+                    "agent_name",
+                    "examiner",
+                    "priority",
+                    "priority_date",
+                    "ipc",
+                    "first_ipc",
+                    "cpc",
+                    "first_cpc",
+                    "loc",
+                    "fi",
+                    "f_term",
+                    "d_term",
+                    "uspc",
+                    "cited_patents"
+                  ]
+                },
+                "type": "array"
+              }
+            ],
+            "title": "Search Field",
+            "description": "Which GPSS field group(s) to search. Provide a single value or a list to reuse the same keywords across multiple fields (additional fields are combined with OR per GPSS API rules). Supported values include single fields such as: title, abstract, claims, patent_number, publication_date, application_number, application_date, applicant_name, first_applicant_name, applicant_country, first_applicant_country, inventor_name, inventor_country, agent_name, examiner, priority, priority_date, ipc, first_ipc, cpc, first_cpc, loc, fi, f_term, d_term, uspc, and cited_patents.",
+            "default": "title"
+          },
+          "databases": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Databases",
+            "description": "Optional list of GPSS database codes (patDB)"
+          },
+          "application_types": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Application Types",
+            "description": "Optional list of GPSS application type codes (patAG)"
+          },
+          "patent_types": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Patent Types",
+            "description": "Optional list of GPSS patent type codes (patTY)"
+          },
+          "publication_date_from": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Publication Date From",
+            "description": "Lower bound for publication date (YYYYMMDD)"
+          },
+          "publication_date_to": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Publication Date To",
+            "description": "Upper bound for publication date (YYYYMMDD)"
+          },
+          "max_results": {
+            "type": "integer",
+            "maximum": 500.0,
+            "minimum": 1.0,
+            "title": "Max Results",
+            "description": "Maximum number of results to request from GPSS",
+            "default": 30
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "keywords"
+        ],
+        "title": "SearchPatentsRequest",
+        "description": "Provide patent search criteria only. Authentication is handled internally by reading the USER_CODE environment variable; callers must not supply userCode in the request.",
+        "examples": [
+          {
+            "keywords": "\u96f2\u7aef AND \u8f49\u578b",
+            "max_results": 50,
+            "publication_date_from": "20220101",
+            "search_field": [
+              "title",
+              "abstract",
+              "claims"
+            ]
+          },
+          {
+            "databases": [
+              "TWA",
+              "USA"
+            ],
+            "keywords": "lithium battery AND fast charging",
+            "max_results": 40,
+            "search_field": [
+              "title",
+              "abstract",
+              "claims"
+            ]
+          }
+        ]
+      },
+      "SearchPatentsResult": {
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "title": "Success"
+          },
+          "data": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/SearchPatentsData"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "request_params": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Request Params"
+          },
+          "error": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Error"
+          }
+        },
+        "type": "object",
+        "required": [
+          "success"
+        ],
+        "title": "SearchPatentsResult",
+        "description": "Standard return model for MCP tool operations."
+      },
+      "ValidationError": {
+        "properties": {
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "type": "array",
+            "title": "Location"
+          },
+          "msg": {
+            "type": "string",
+            "title": "Message"
+          },
+          "type": {
+            "type": "string",
+            "title": "Error Type"
+          }
+        },
+        "type": "object",
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError"
+      }
+    }
+  }
+}
