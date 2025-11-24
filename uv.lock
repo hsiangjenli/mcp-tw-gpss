@@ -521,7 +521,7 @@ wheels = [
 
 [[package]]
 name = "mcp-tw-gpss"
-version = "1.0.4"
+version = "1.0.1"
 source = { editable = "." }
 dependencies = [
     { name = "fastapi" },
