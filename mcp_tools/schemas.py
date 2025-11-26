@@ -1,11 +1,379 @@
-from pydantic import BaseModel, Field
+"""
+GPSS API Schema Definitions using Pydantic and Enum
+Based on GPSS API Service Documentation v1.4
+"""
+
+from enum import Enum
+from typing import List, Optional
+from pydantic import AliasChoices, BaseModel, Field
 
 
-class NewEndpointResponse(BaseModel):
-    message: str = Field(..., description="A welcome message.", example="Hello, world!")
+# ==================== Enumerations ====================
 
 
-class NewEndpointRequest(BaseModel):
-    name: str = Field(
-        ..., description="The name to include in the message.", example="developer"
+class PatDB(str, Enum):
+    """Patent databases with inline descriptions stored on each member.
+
+    Members carry a `(code, description)` tuple so descriptions are
+    available at runtime without parsing source comments.
+    """
+
+    def __new__(cls, value: str, description: str):
+        obj = str.__new__(cls, value)
+        obj._value_ = value
+        setattr(obj, "description", description)
+        return obj
+
+    TWA = (
+        "TWA",
+        "台灣公開（公開之發明專利申請案，只是技術內容公開，並非已取得專利權），2003 ~",
     )
+    TWB = ("TWB", "台灣公告（公告之專利表示已取得專利權），1950 ~")
+    TWD = ("TWD", "台灣設計，1964 ~")
+    USA = (
+        "USA",
+        "美國公開（公開之發明專利申請案，只是技術內容公開，並非已取得專利權）， 2001 ~",
+    )
+    USB = ("USB", "美國公告（公告之專利表示已取得專利權）， 1790 ~")
+    USD = ("USD", "美國設計，1976 ~")
+    JPA = (
+        "JPA",
+        "日本公開（公開之發明專利申請案，只是技術內容公開，並非已取得專利權），1971 ~",
+    )
+    JPB = ("JPB", "日本公告（公告之專利表示已取得專利權），1913 ~")
+    JPD = ("JPD", "日本意匠，2000 ~")
+    EPA = (
+        "EPA",
+        "歐洲公開（公開之發明專利申請案，只是技術內容公開，並非已取得專利權），1978 ~",
+    )
+    EPB = ("EPB", "歐洲公告（公告之專利表示已取得專利權），1980 ~")
+    EUIPO = ("EUIPO", "歐洲設計，2003 ~")
+    KPA = (
+        "KPA",
+        "韓國公開（公開之發明專利申請案，只是技術內容公開，並非已取得專利權），1999 ~",
+    )
+    KPB = ("KPB", "韓國公告（公告之專利表示已取得專利權），1974 ~")
+    KPD = ("KPD", "韓國設計，1998 ~")
+    CNA = (
+        "CNA",
+        "中國公開（公開之發明專利申請案，只是技術內容公開，並非已取得專利權），1985 ~",
+    )
+    CNB = ("CNB", "中國公告（公告之專利表示已取得專利權），1985 ~")
+    CND = ("CND", "中國設計，1985 ~")
+    WO = ("WO", "WIPO 公開，1978 ~")
+    SEAA = ("SEAA", "東南亞公開(無全文)，1953 ~")
+    SEAB = ("SEAB", "東南亞公告(無全文)，1975 ~")
+    OTA = ("OTA", "其他國家公開(無全文)，1782 ~")
+    OTB = ("OTB", "其他國家公告(無全文)，1827 ~")
+
+
+# Human-friendly descriptions and usage guidance for each PatDB code.
+# The `description` values are the inline comments extracted from the
+# `PatDB` enum so the rest of the application (and MCP tools) can return
+# these annotations at runtime. The `usage` field offers a short note
+# explaining when to query that database.
+PATDB_INFO: dict[str, str] = {}
+
+for member in PatDB:
+    desc = getattr(member, "description", member.value)
+    PATDB_INFO[member.value] = desc
+
+
+class PatAG(str, Enum):
+    """Patent application type (patent aggregation)."""
+
+    A = "A"  # 公開案
+    B = "B"  # 公告案
+
+
+class PatTY(str, Enum):
+    """Patent document type."""
+
+    I = "I"  # 發明
+    M = "M"  # 新型
+    D = "D"  # 設計
+
+
+class OutputFormat(str, Enum):
+    """Output format for API response."""
+
+    XML = "xml"
+    JSON = "json"
+
+
+class SearchLogicOperator(str, Enum):
+    """Logic operators for combining search fields."""
+
+    AND = "AND"
+    OR = "OR"
+    NOT = "NOT"
+
+
+# ==================== Output Fields ====================
+
+
+class OutputFieldCode(str, Enum):
+    """Available output field codes."""
+
+    PN = "PN"  # 公開/公告號
+    ID = "ID"  # 公開/公告日
+    AN = "AN"  # 申請號
+    AD = "AD"  # 申請日
+    PA = "PA"  # 申請人名 (輸出欄位代碼)
+    AX = "AX"  # 申請人名 (部分文件使用)
+    AF = "AF"  # 第一申請人名
+    AY = "AY"  # 申請人國別
+    AZ = "AZ"  # 第一申請人國別
+    IN = "IN"  # 發明人名 (輸出欄位代碼)
+    IV = "IV"  # 發明人名 (部分文件使用)
+    IY = "IY"  # 發明人國別
+    LX = "LX"  # 代理人名
+    EX = "EX"  # 審查委員
+    PR = "PR"  # 優先權
+    DR = "DR"  # 優先權日
+    IC = "IC"  # IPC
+    FC = "FC"  # 第一 IPC
+    CS = "CS"  # CPC
+    TS = "TS"  # 第一 CPC
+    IQ = "IQ"  # LOC
+    FI = "FI"  # FI
+    FT = "FT"  # F-TERM
+    IR = "IR"  # D-TERM
+    UC = "UC"  # USPC
+    TI = "TI"  # 專利名稱
+    AB = "AB"  # 摘要
+    CL = "CL"  # 專利範圍
+    CI = "CI"  # 引用專利
+
+
+# ==================== API Request Models ====================
+
+
+class SearchCondition(BaseModel):
+    """Search condition parameters for GPSS API."""
+
+    model_config = {"populate_by_name": True, "extra": "ignore"}
+
+    # Patent document identifiers
+    patent_number: Optional[str] = Field(
+        None, alias="PN", description="公開/公告號 (e.g., TW201644272A)"
+    )
+    publication_date: Optional[str] = Field(
+        None, alias="ID", description="公開/公告日 (e.g., 2020:2021)"
+    )
+    application_number: Optional[str] = Field(
+        None, alias="AN", description="申請號 (e.g., TW105131793)"
+    )
+    application_date: Optional[str] = Field(
+        None, alias="AD", description="申請日 (e.g., 20191107:)"
+    )
+
+    # Applicant information
+    applicant_name: Optional[str] = Field(
+        None, alias="AX", description="申請人名 (e.g., 林大成 AND 陳曉明)"
+    )
+    first_applicant_name: Optional[str] = Field(
+        None, alias="AF", description="第一申請人名"
+    )
+    applicant_country: Optional[str] = Field(
+        None, alias="AY", description="申請人國別 (e.g., US OR TW)"
+    )
+    first_applicant_country: Optional[str] = Field(
+        None, alias="AZ", description="第一申請人國別 (e.g., US OR 美國)"
+    )
+
+    # Inventor information
+    inventor_name: Optional[str] = Field(None, alias="IV", description="發明人名")
+    inventor_country: Optional[str] = Field(None, alias="IY", description="發明人國別")
+
+    # Other information
+    agent_name: Optional[str] = Field(None, alias="LX", description="代理人名")
+    examiner: Optional[str] = Field(None, alias="EX", description="審查委員")
+    priority: Optional[str] = Field(
+        None, alias="PR", description="優先權 (e.g., US201514879928)"
+    )
+    priority_date: Optional[str] = Field(
+        None, alias="DR", description="優先權日 (e.g., 202001:202012)"
+    )
+
+    # Classification
+    ipc: Optional[str] = Field(
+        None, alias="IC", description="IPC (e.g., G01S 5/02 AND G01S 1/00)"
+    )
+    first_ipc: Optional[str] = Field(None, alias="FC", description="第一 IPC")
+    cpc: Optional[str] = Field(None, alias="CS", description="CPC")
+    first_cpc: Optional[str] = Field(None, alias="TS", description="第一 CPC")
+    loc: Optional[str] = Field(None, alias="IQ", description="LOC")
+    fi: Optional[str] = Field(None, alias="FI", description="FI")
+    f_term: Optional[str] = Field(None, alias="FT", description="F-TERM")
+    d_term: Optional[str] = Field(None, alias="IR", description="D-TERM")
+    uspc: Optional[str] = Field(None, alias="UC", description="USPC")
+
+    # Patent content
+    title: Optional[str] = Field(
+        None, alias="TI", description="專利名稱 (e.g., 無線裝置 OR 通訊裝置)"
+    )
+    abstract: Optional[str] = Field(None, alias="AB", description="摘要")
+    claims: Optional[str] = Field(None, alias="CL", description="專利範圍")
+    cited_patents: Optional[str] = Field(None, alias="CI", description="引用專利")
+
+    # Combined fields
+    title_abstract: Optional[str] = Field(
+        None, alias="TI/AB", description="專利名稱/摘要"
+    )
+    title_abstract_claims: Optional[str] = Field(
+        None, alias="TI/AB/CL", description="專利名稱/摘要/專利範圍"
+    )
+
+
+class SearchSettings(BaseModel):
+    """Search settings (filtering parameters)."""
+
+    model_config = {"populate_by_name": True, "extra": "ignore"}
+
+    databases: Optional[List[PatDB]] = Field(
+        None, alias="patDB", description="資料庫 (default: all databases)"
+    )
+    application_type: Optional[List[PatAG]] = Field(
+        None, alias="patAG", description="案件類型 (default: A,B)"
+    )
+    patent_type: Optional[List[PatTY]] = Field(
+        None, alias="patTY", description="專利類型 (default: I,M,D)"
+    )
+
+
+class OutputSettings(BaseModel):
+    """Output settings for API response."""
+
+    model_config = {"populate_by_name": True, "extra": "ignore"}
+
+    fields: Optional[List[OutputFieldCode]] = Field(
+        None, alias="expFld", description="輸出欄位 (default: PN,ID,AN,AD,TI)"
+    )
+    format: OutputFormat = Field(
+        OutputFormat.XML, alias="expFmt", description="輸出格式"
+    )
+    quantity: int = Field(30, alias="expQty", description="輸出筆數 (default: 30)")
+    skip: int = Field(0, alias="expSkip", description="跳躍筆數 (default: 0)")
+
+
+class GPSSAPIRequest(BaseModel):
+    """Complete GPSS API request model (excluding authentication)."""
+
+    model_config = {"populate_by_name": True, "extra": "ignore"}
+
+    search_settings: Optional[SearchSettings] = Field(
+        default=None, description="搜尋設定"
+    )
+    search_condition: Optional[SearchCondition] = Field(
+        default=None, description="搜尋條件 (必填)"
+    )
+    output_settings: Optional[OutputSettings] = Field(
+        default=None, description="輸出設定"
+    )
+
+
+# ==================== API Response Models ====================
+
+
+class PatentRecord(BaseModel):
+    """Single patent record from API response."""
+
+    model_config = {"populate_by_name": True, "extra": "ignore"}
+
+    patent_number: Optional[str] = Field(
+        None, alias="PN", description="Publication/announcement number (公開/公告號)"
+    )
+    publication_date: Optional[str] = Field(
+        None, alias="ID", description="Publication/announcement date (公開/公告日)"
+    )
+    application_number: Optional[str] = Field(
+        None, alias="AN", description="Application number (申請號)"
+    )
+    application_date: Optional[str] = Field(
+        None, alias="AD", description="Application date (申請日)"
+    )
+    applicant_name: Optional[str] = Field(
+        None,
+        alias="PA",
+        validation_alias=AliasChoices("PA", "AX"),
+        description="Applicant name (申請人名)",
+    )
+    first_applicant: Optional[str] = Field(
+        None, alias="AF", description="First applicant name (第一申請人名)"
+    )
+    applicant_country: Optional[str] = Field(
+        None, alias="AY", description="Applicant country (申請人國別)"
+    )
+    first_applicant_country: Optional[str] = Field(
+        None, alias="AZ", description="First applicant country (第一申請人國別)"
+    )
+    inventor_name: Optional[str] = Field(
+        None,
+        alias="IN",
+        validation_alias=AliasChoices("IN", "IV"),
+        description="Inventor name (發明人名)",
+    )
+    inventor_country: Optional[str] = Field(
+        None, alias="IY", description="Inventor country (發明人國別)"
+    )
+    agent_name: Optional[str] = Field(
+        None, alias="LX", description="Agent / attorney name (代理人名)"
+    )
+    examiner: Optional[str] = Field(None, alias="EX", description="Examiner (審查委員)")
+    priority: Optional[str] = Field(
+        None, alias="PR", description="Priority claim (優先權)"
+    )
+    priority_date: Optional[str] = Field(
+        None, alias="DR", description="Priority date (優先權日)"
+    )
+    ipc: Optional[str] = Field(None, alias="IC", description="IPC classification (IPC)")
+    first_ipc: Optional[str] = Field(
+        None, alias="FC", description="First IPC (第一 IPC)"
+    )
+    cpc: Optional[str] = Field(None, alias="CS", description="CPC classification (CPC)")
+    first_cpc: Optional[str] = Field(
+        None, alias="TS", description="First CPC (第一 CPC)"
+    )
+    loc: Optional[str] = Field(None, alias="IQ", description="LOC classification (LOC)")
+    fi: Optional[str] = Field(None, alias="FI", description="FI classification (FI)")
+    f_term: Optional[str] = Field(None, alias="FT", description="F-TERM (F-TERM)")
+    d_term: Optional[str] = Field(None, alias="IR", description="D-TERM (D-TERM)")
+    uspc: Optional[str] = Field(
+        None, alias="UC", description="USPC classification (USPC)"
+    )
+    title: Optional[str] = Field(
+        None, alias="TI", description="Patent title (專利名稱)"
+    )
+    abstract: Optional[str] = Field(None, alias="AB", description="Abstract (摘要)")
+    claims: Optional[str] = Field(
+        None, alias="CL", description="Claims / patent scope (專利範圍)"
+    )
+    cited_patents: Optional[str] = Field(
+        None, alias="CI", description="Cited patents / references (引用專利)"
+    )
+
+
+class GPSSAPIResponse(BaseModel):
+    """GPSS API response wrapper."""
+
+    model_config = {"populate_by_name": True, "extra": "ignore"}
+
+    total_count: Optional[int] = Field(
+        None, description="Total number of matching records"
+    )
+    returned_count: Optional[int] = Field(
+        None, description="Number of records in this response"
+    )
+    records: Optional[List[PatentRecord]] = Field(
+        None, description="List of patent records"
+    )
+
+
+class APIError(BaseModel):
+    """API error response."""
+
+    model_config = {"populate_by_name": True, "extra": "ignore"}
+
+    error_code: str = Field(..., description="Error code")
+    error_message: str = Field(..., description="Error message")
