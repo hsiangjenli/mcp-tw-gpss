@@ -1,7 +1,6 @@
 """Simple tests to verify GPSS API schemas work correctly."""
 
 from mcp_tools.schemas import (
-    DateRange,
     GPSSAPIRequest,
     GPSSAPIResponse,
     OutputFormat,
@@ -11,8 +10,6 @@ from mcp_tools.schemas import (
     PatTY,
     PatentRecord,
     SearchCondition,
-    SearchLogicOperator,
-    SearchQuery,
     SearchSettings,
 )
 
@@ -137,26 +134,3 @@ def test_api_response():
     assert response.total_count == 2
     assert len(response.records) == 2
     assert response.records[0].patent_number == "TW201644272A"
-
-
-def test_date_range():
-    """DateRange helper returns colon-formatted string."""
-
-    dr = DateRange(start_date="20200101", end_date="20231231")
-    assert dr.to_string() == "20200101:20231231"
-
-    dr_start_only = DateRange(start_date="20200101")
-    assert dr_start_only.to_string() == "20200101:"
-
-    dr_end_only = DateRange(end_date="20231231")
-    assert dr_end_only.to_string() == ":20231231"
-
-
-def test_search_query():
-    """SearchQuery joins keywords with the selected operator."""
-
-    query_or = SearchQuery(keywords=["無線", "藍牙"], operator=SearchLogicOperator.OR)
-    assert query_or.to_string() == "無線 OR 藍牙"
-
-    query_and = SearchQuery(keywords=["充電", "快速"], operator=SearchLogicOperator.AND)
-    assert query_and.to_string() == "充電 AND 快速"

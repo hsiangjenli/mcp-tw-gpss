@@ -377,37 +377,3 @@ class APIError(BaseModel):
 
     error_code: str = Field(..., description="Error code")
     error_message: str = Field(..., description="Error message")
-
-
-# ==================== Helper Models ====================
-
-
-class DateRange(BaseModel):
-    """Date range model for flexible date parameters."""
-
-    start_date: Optional[str] = Field(None, description="Start date (format: YYYYMMDD)")
-    end_date: Optional[str] = Field(None, description="End date (format: YYYYMMDD)")
-
-    def to_string(self) -> str:
-        """Convert date range to GPSS API format (e.g., '20100101:20201231')."""
-        if self.start_date and self.end_date:
-            return f"{self.start_date}:{self.end_date}"
-        if self.start_date:
-            return f"{self.start_date}:"
-        if self.end_date:
-            return f":{self.end_date}"
-        return ""
-
-
-class SearchQuery(BaseModel):
-    """Helper model for building complex search queries."""
-
-    keywords: List[str] = Field(..., description="Search keywords")
-    operator: SearchLogicOperator = Field(
-        default=SearchLogicOperator.AND, description="Logic operator between keywords"
-    )
-
-    def to_string(self) -> str:
-        """Convert search query to GPSS API format."""
-        op = f" {self.operator.value} "
-        return op.join(self.keywords)
