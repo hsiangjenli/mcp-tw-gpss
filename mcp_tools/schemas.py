@@ -4,7 +4,7 @@ Based on GPSS API Service Documentation v1.4
 """
 
 from enum import Enum
-from typing import List, Optional, Literal
+from typing import List, Optional
 from pydantic import AliasChoices, BaseModel, Field
 
 
