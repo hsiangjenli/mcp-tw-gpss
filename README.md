@@ -11,7 +11,7 @@ AI-ready MCP (Model Context Protocol) server for searching patents in the Global
 
 ## Quick Start
 
-Requirements: Python 3.11+ (Docker optional)
+Requirements: Python 3.12+ (Docker optional)
 
 1. Set credentials (example):
 
